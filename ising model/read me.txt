@@ -1,0 +1,84 @@
+So, the ising_monte_carlo is creating a prelimilary simulation of what I want
+
+The, the import numpy as np create an html simulation with a lot of pngs in the animation frames
+
+Then, the import cv2 creates a mp4 file. 
+
+To rum import cv2 on your computer, use the following instruction. Other than the normal package installation, you would also need to install 'ffmpeg' 
+To do that, first install chocolatey
+1. Open Command Prompt as Administrator:
+Right-click on the Start button and select "Command Prompt (Admin)" or "Windows PowerShell (Admin)".
+
+Run the Installation Command:
+Copy and paste the following command into the Command Prompt and press Enter:
+
+@"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+
+Wait for Installation:
+The installation process may take a few moments to complete. Once done, Chocolatey should be installed on your system.
+
+Verify Installation:
+After the installation is complete, you can verify that Chocolatey is installed correctly by running:
+
+choco -?
+
+
+
+Once, this is done, open vs code again. This time in Administrator mode. 
+Open a New Terminal Window:
+
+Either press Ctrl + Shift + ``, or go to the menu and select Terminal>New Terminal`.
+This will open a new terminal window at the bottom of the Visual Studio Code interface.
+Select Command Prompt or PowerShell:
+
+By default, Visual Studio Code opens the terminal with PowerShell. Change it to use Command Prompt only for this step:
+Click on the dropdown arrow at the top-right corner of the terminal window.
+Select "Command Prompt" from the dropdown menu, depending on your preference.
+Verify Chocolatey Installation:
+
+Once the terminal is open, you can verify that Chocolatey is installed by running:
+
+choco -?
+
+If Chocolatey is installed correctly, you'll see the Chocolatey help message displayed in the terminal.
+
+then run the following command
+
+choco install ffmpeg
+(if it shows, some error about file not being accessable then, make sure that vs code is open in Administrator mode)
+(if it shows some error about it already being there, but no instlled package, then force a re-install by using the following command:
+
+choco install ffmpeg --force
+
+)
+
+Once it has successfully installed, close that terminal and open a python terminal and run the following Command:
+
+pip install imageio[ffmpeg]   
+
+once you are done with all this, then, you can rum the import cv2 code to get a video out of it.
+
+
+
+
+
+
+Now, let's talk Cython. First of all, pip install cython. 
+
+run setup.py
+
+ 
+
+to use cython, run setup.py, using this:  python setup.py build_ext --inplace
+If it throws error that, it can't delete a file, becasue of "access denied" usually happens when you are re-running the program. Then, you need to manually delete a .pxd file.
+
+Also, it needs,  Microsoft Visual C++ 14.0 or greater is required". So, for that, you can use two things, 
+
+1. install visual studio Build tools using this link: https://stackoverflow.com/questions/64261546/how-to-solve-error-microsoft-visual-c-14-0-or-greater-is-required-when-inst
+
+2. or run the following code in the terminal
+Upgrade your pip with: python -m pip install --upgrade pip
+Upgrade your wheel with: pip install --upgrade wheel
+Upgrade your setuptools with: pip install --upgrade setuptools
+Close the terminal
+Try running the setup.py again
