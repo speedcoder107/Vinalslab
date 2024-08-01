@@ -135,6 +135,25 @@ def get_B_field(model):
 def get_temp(model):
     return 1/(model.beta * k_b)
 
+def compute_correlation_function(model):
+    lattice = model.lattice
+    L = len(lattice)
+    G = np.zeros((L, L))
+    for i in range(L):
+        for j in range(L):
+            for di in range(L):
+                for dj in range(L):
+                    G[di, dj] += np.cos(lattice[i, j] - lattice[(i+di)%L, (j+dj)%L])
+    G /= (L * L)
+    return G
+
+def find_characteristic_length(G, threshold=1 / np.e):
+    L = len(G)
+    for r in range(1, L//2):
+        if G[r, r] < threshold:
+            return r
+    return L // 2
+
 def get_energy(model, row, col):
     """
     Calculate the energy contribution of a specific lattice site in a 2D spin model.
@@ -412,6 +431,21 @@ def display_xy_sequence(images):
         plt.axis('off')
         plt.show()    
     return interact(_show)
+
+def display_correlation_func_sequence(corr_func):
+    def _show(frame):
+        plt.figure(figsize=(6, 6))
+        lattice = corr_func[frame]
+        plt.imshow(lattice, cmap='hsv', extent=[0, 20, 0, 20])
+        plt.colorbar()
+        plt.title('Spin-Spin Correlation Function')
+        plt.xlabel('Distance')
+        plt.ylabel('Distance')
+        plt.show() 
+    return interact(_show, frame=(0, len(corr_func) - 1))
+
+def power_law(t, b, a):
+    return a * t**b
 
 def graph_list(data, x_label, y_label, title,):
     """
