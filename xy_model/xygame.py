@@ -223,7 +223,7 @@ def metropolis(model):
     old_value = lattice[row, col]
     spin_i = get_spin(model, row, col)
     
-    dtheta = 0.5
+    dtheta = 2*math.pi/20
     new_value = (lattice[row, col] + dtheta) % (2 * math.pi)  # Ensure new_value is within 0 to 2*pi
     spin_f = new_value
     
@@ -232,6 +232,7 @@ def metropolis(model):
     energy_f = get_energy(model, row, col)
     
     d_energy = energy_f - energy_i
+    print(d_energy)
     d_spin = spin_f - spin_i
     
     if d_energy < 0 or np.random.random() < np.exp(-model.beta * d_energy):
