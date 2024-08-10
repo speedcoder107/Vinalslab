@@ -2,7 +2,7 @@ import numpy as np
 import csv
 
 # Number of points
-num_points = 20
+num_points = 100
 
 # Generate the theta values from 0 to 2*pi
 theta_values = np.linspace(0, 2*np.pi, num_points)
