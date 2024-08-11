@@ -1,9 +1,6 @@
 # initialize and change the system between 0 and 2 pi.
 import imageio
 import numpy as np
-import math
-from scipy.ndimage import convolve, generate_binary_structure
-from scipy.constants import Boltzmann, eV
 import random
 from ipywidgets import interact
 import matplotlib.pyplot as plt
