@@ -1,26 +1,17 @@
 # initialize and change the system between 0 and 2 pi.
 import imageio
 import numpy as np
+import math
+from scipy.ndimage import convolve, generate_binary_structure
+from scipy.constants import Boltzmann, eV
 import random
 from ipywidgets import interact
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 import os
-import pandas as pd
 
 # constants
 k_b = 1
-
-# Load the CSV file into a DataFrame
-df = pd.read_csv('/workspaces/Vinalslab/xy_model/cosine_values.csv')
-
-# Sort DataFrame by theta to ensure ordered lookup
-df = df.sort_values(by='theta').reset_index(drop=True)
-
-# Create arrays for theta and cosine
-index = df['Index'].values
-theta_values = df['theta'].values
-cosine_values = df['cosine'].values
 
 class full_model():
     def __init__(self, lattice, B_field, beta, time, J, net_energy=None, net_spin=None):
@@ -64,22 +55,7 @@ def field_generator(row, col, left_most = 0.0, right_most = 2*math.pi):
     Returns:
     - 2D lattice of the field.
     '''
-    if left_most == 0.0 and right_most == 2*math.pi:
-        return np.random.choice(theta_values, size=(row, col)) # generates a random field between 0 and 2pi
-    else:
-        return np.random.uniform(left_most, right_most, size = (row, col)) # generate a random field if we don't have a 0 and 2pi
-
-
-def get_cosine(theta):
-    # Check if exact match exists
-    if theta in theta_values:
-        return df[df['theta'] == theta]['cosine'].values[0]
-    else:
-        # Find the index of the closest value
-        idx = np.abs(theta_values - theta).argmin()
-        nearest_cosine = cosine_values[idx]
-        return nearest_cosine    
-
+    return np.random.uniform(left_most, right_most, size = (row, col)) # generates a random field with 0 and 2pi if no arguement is provided
 
 def set_net_energy(full_model):
     """
@@ -104,24 +80,24 @@ def set_net_energy(full_model):
             if (j + 1) < cols:
                 # Right neighbor (with periodic boundary condition) 
                 theta_right = lattice[i, (j + 1)]
-                net_energy -= get_cosine(theta_ij - theta_right)
+                net_energy -= np.cos(theta_ij - theta_right)
 
             if (j - 1) >= 0:
                 # left neighbor (with periodic boundary condition) 
                 theta_left = lattice[i, (j - 1)]
-                net_energy -=get_cosine(theta_ij - theta_left)
+                net_energy -=np.cos(theta_ij - theta_left)
 
             if (i + 1) < cols:
                 # Bottom neighbor (with periodic boundary condition)
                 theta_down = lattice[(i + 1), j]
-                net_energy -= get_cosine(theta_ij - theta_down)
+                net_energy -= np.cos(theta_ij - theta_down)
 
             if (i - 1) >= 0:
                 # up neighbor (with periodic boundary condition)
                 theta_up = lattice[(i - 1), j]
-                net_energy -= get_cosine(theta_ij - theta_up)
+                net_energy -= np.cos(theta_ij - theta_up)
             
-            net_energy -= get_cosine(theta_ij) * b_field[i,j] # not sure about this part
+            net_energy -= np.cos(theta_ij) * b_field[i,j] # not sure about this part
     
     full_model.net_energy = net_energy
     return net_energy
@@ -159,25 +135,6 @@ def get_B_field(model):
 def get_temp(model):
     return 1/(model.beta * k_b)
 
-def compute_correlation_function(model):
-    lattice = model.lattice
-    L = len(lattice)
-    G = np.zeros((L, L))
-    for i in range(L):
-        for j in range(L):
-            for di in range(L):
-                for dj in range(L):
-                    G[di, dj] += get_cosine(lattice[i, j] - lattice[(i+di)%L, (j+dj)%L])
-    G /= (L * L)
-    return G
-
-def find_characteristic_length(G, threshold=1 / np.e):
-    L = len(G)
-    for r in range(1, L//2):
-        if G[r, r] < threshold:
-            return r
-    return L // 2
-
 def get_energy(model, row, col):
     """
     Calculate the energy contribution of a specific lattice site in a 2D spin model.
@@ -204,24 +161,24 @@ def get_energy(model, row, col):
     if (j + 1) < cols:
         # Right neighbor (with periodic boundary condition) 
         theta_right = lattice[i, (j + 1)]
-        net_energy -= get_cosine(theta_ij - theta_right)
+        net_energy -= np.cos(theta_ij - theta_right)
 
     if (j - 1) >= 0:
         # left neighbor (with periodic boundary condition) 
         theta_left = lattice[i, (j - 1)]
-        net_energy -=get_cosine(theta_ij - theta_left)
+        net_energy -=np.cos(theta_ij - theta_left)
 
     if (i + 1) < rows:
         # Bottom neighbor (with periodic boundary condition)
         theta_down = lattice[(i + 1), j]
-        net_energy -= get_cosine(theta_ij - theta_down)
+        net_energy -= np.cos(theta_ij - theta_down)
 
     if (i - 1) >= 0:
         # up neighbor (with periodic boundary condition)
         theta_up = lattice[(i - 1), j]
-        net_energy -= get_cosine(theta_ij - theta_up)
+        net_energy -= np.cos(theta_ij - theta_up)
     
-    net_energy -= get_cosine(theta_ij) * b_field[i,j]  #not sure about this one
+    net_energy -= np.cos(theta_ij) * b_field[i,j]  #not sure about this one
 
     return net_energy
 
@@ -247,7 +204,7 @@ def metropolis(model):
     old_value = lattice[row, col]
     spin_i = get_spin(model, row, col)
     
-    dtheta = 2*math.pi/100
+    dtheta = 0.5
     new_value = (lattice[row, col] + dtheta) % (2 * math.pi)  # Ensure new_value is within 0 to 2*pi
     spin_f = new_value
     
@@ -256,7 +213,6 @@ def metropolis(model):
     energy_f = get_energy(model, row, col)
     
     d_energy = energy_f - energy_i
-    print(d_energy)
     d_spin = spin_f - spin_i
     
     if d_energy < 0 or np.random.random() < np.exp(-model.beta * d_energy):
@@ -372,7 +328,7 @@ def compute_angle_difference(angle1, angle2):
     float: The angle difference.
     """
     diff = angle1 - angle2
-    return np.arctan2(np.sin(diff), get_cosine(diff))
+    return np.arctan2(np.sin(diff), np.cos(diff))
 
 
 def detect_defects(lattice):
@@ -456,21 +412,6 @@ def display_xy_sequence(images):
         plt.axis('off')
         plt.show()    
     return interact(_show)
-
-def display_correlation_func_sequence(corr_func):
-    def _show(frame):
-        plt.figure(figsize=(6, 6))
-        lattice = corr_func[frame]
-        plt.imshow(lattice, cmap='hsv', extent=[0, 20, 0, 20])
-        plt.colorbar()
-        plt.title('Spin-Spin Correlation Function')
-        plt.xlabel('Distance')
-        plt.ylabel('Distance')
-        plt.show() 
-    return interact(_show, frame=(0, len(corr_func) - 1))
-
-def power_law(t, b, a):
-    return a * t**b
 
 def graph_list(data, x_label, y_label, title,):
     """
