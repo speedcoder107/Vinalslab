@@ -224,97 +224,97 @@ def metropolis(model):
         return False
 
 
-def curl_calculator(lattice_2D):
-    """
-    Calculate the curl of a 2D gradient field.
+# def curl_calculator(lattice_2D):
+#     """
+#     Calculate the curl of a 2D gradient field.
     
-    Parameters:
-    gradient (np.ndlattice): A 2D numpy lattice where each element is a tuple (grad_x, grad_y).
+#     Parameters:
+#     gradient (np.ndlattice): A 2D numpy lattice where each element is a tuple (grad_x, grad_y).
     
-    Returns:
-    curl (np.ndlattice): A 2D numpy lattice representing the curl of the field.
-    """
+#     Returns:
+#     curl (np.ndlattice): A 2D numpy lattice representing the curl of the field.
+#     """
     
-    if lattice_2D.ndim != 2 or not isinstance(lattice_2D[0, 0], tuple):
-        raise ValueError("The input lattice_2D must be a 2D lattice of tuples.")
+#     if lattice_2D.ndim != 2 or not isinstance(lattice_2D[0, 0], tuple):
+#         raise ValueError("The input lattice_2D must be a 2D lattice of tuples.")
     
-    # Get the dimensions of the lattice_2D field
-    rows, cols = lattice_2D.shape
+#     # Get the dimensions of the lattice_2D field
+#     rows, cols = lattice_2D.shape
     
-    # Initialize the curl lattice
-    curl = np.zeros((rows, cols), dtype=float)
+#     # Initialize the curl lattice
+#     curl = np.zeros((rows, cols), dtype=float)
     
-    # Calculate the curl using finite differences
-    for i in range(1, rows-1):
-        for j in range(1, cols-1):
-            grad_x_y_plus = lattice_2D[i+1, j][0]
-            grad_x_y_minus = lattice_2D[i-1, j][0]
-            grad_y_x_plus = lattice_2D[i, j+1][1]
-            grad_y_x_minus = lattice_2D[i, j-1][1]
+#     # Calculate the curl using finite differences
+#     for i in range(1, rows-1):
+#         for j in range(1, cols-1):
+#             grad_x_y_plus = lattice_2D[i+1, j][0]
+#             grad_x_y_minus = lattice_2D[i-1, j][0]
+#             grad_y_x_plus = lattice_2D[i, j+1][1]
+#             grad_y_x_minus = lattice_2D[i, j-1][1]
             
-            partial_grad_y_x = (grad_y_x_plus - grad_y_x_minus) / 2.0
-            partial_grad_x_y = (grad_x_y_plus - grad_x_y_minus) / 2.0
+#             partial_grad_y_x = (grad_y_x_plus - grad_y_x_minus) / 2.0
+#             partial_grad_x_y = (grad_x_y_plus - grad_x_y_minus) / 2.0
             
-            curl[i, j] = partial_grad_y_x - partial_grad_x_y
+#             curl[i, j] = partial_grad_y_x - partial_grad_x_y
     
-    # Handle the boundaries with one-sided differences
-    # Top and bottom rows
-    for j in range(cols):
-        curl[0, j] = lattice_2D[1, j][1] - lattice_2D[0, j][1] - (lattice_2D[0, j][0] - lattice_2D[0, j][0])
-        curl[-1, j] = lattice_2D[-1, j][1] - lattice_2D[-2, j][1] - (lattice_2D[-1, j][0] - lattice_2D[-1, j][0])
+#     # Handle the boundaries with one-sided differences
+#     # Top and bottom rows
+#     for j in range(cols):
+#         curl[0, j] = lattice_2D[1, j][1] - lattice_2D[0, j][1] - (lattice_2D[0, j][0] - lattice_2D[0, j][0])
+#         curl[-1, j] = lattice_2D[-1, j][1] - lattice_2D[-2, j][1] - (lattice_2D[-1, j][0] - lattice_2D[-1, j][0])
     
-    # Left and right columns
-    for i in range(rows):
-        curl[i, 0] = lattice_2D[i, 1][1] - lattice_2D[i, 0][1] - (lattice_2D[i, 0][0] - lattice_2D[i, 0][0])
-        curl[i, -1] = lattice_2D[i, -1][1] - lattice_2D[i, -2][1] - (lattice_2D[i, -1][0] - lattice_2D[i, -1][0])
+#     # Left and right columns
+#     for i in range(rows):
+#         curl[i, 0] = lattice_2D[i, 1][1] - lattice_2D[i, 0][1] - (lattice_2D[i, 0][0] - lattice_2D[i, 0][0])
+#         curl[i, -1] = lattice_2D[i, -1][1] - lattice_2D[i, -2][1] - (lattice_2D[i, -1][0] - lattice_2D[i, -1][0])
     
-    return curl
+#     return curl
 
-def gradient_calculator(lattice):
-    """
-    Calculate the gradient of a 2D discrete field and return it as a 2D lattice of tuples.
+# def gradient_calculator(lattice):
+#     """
+#     Calculate the gradient of a 2D discrete field and return it as a 2D lattice of tuples.
     
-    Parameters:
-    field (np.ndlattice): A 2D numpy lattice representing the field.
+#     Parameters:
+#     field (np.ndlattice): A 2D numpy lattice representing the field.
     
-    Returns:
-    gradient (np.ndlattice): A 2D numpy lattice where each element is a tuple (grad_x, grad_y).
-    """
+#     Returns:
+#     gradient (np.ndlattice): A 2D numpy lattice where each element is a tuple (grad_x, grad_y).
+#     """
 
-    # Ensure the field is a 2D numpy lattice
-    if not isinstance(lattice, np.ndarray) or lattice.ndim != 2:
-        raise ValueError("The input lattice must be a 2D numpy array.")
+#     # Ensure the field is a 2D numpy lattice
+#     if not isinstance(lattice, np.ndarray) or lattice.ndim != 2:
+#         raise ValueError("The input lattice must be a 2D numpy array.")
         
-    # Get the dimensions of the field
-    rows, cols = lattice.shape
+#     # Get the dimensions of the field
+#     rows, cols = lattice.shape
     
-    # Initialize the lattice_2D lattices
-    grad_x = np.zeros_like(lattice, dtype=float)
-    grad_y = np.zeros_like(lattice, dtype=float)
+#     # Initialize the lattice_2D lattices
+#     grad_x = np.zeros_like(lattice, dtype=float)
+#     grad_y = np.zeros_like(lattice, dtype=float)
     
-    # Calculate the lattice_2D using central differences for interior points
-    for i in range(1, rows-1):
-        for j in range(1, cols-1):
-            grad_x[i, j] = (lattice[i, j+1] - lattice[i, j-1]) / 2.0
-            grad_y[i, j] = (lattice[i+1, j] - lattice[i-1, j]) / 2.0
+#     # Calculate the lattice_2D using central differences for interior points
+#     for i in range(1, rows-1):
+#         for j in range(1, cols-1):
+#             grad_x[i, j] = (lattice[i, j+1] - lattice[i, j-1]) / 2.0
+#             grad_y[i, j] = (lattice[i+1, j] - lattice[i-1, j]) / 2.0
     
-    # Handle the boundaries with one-sided differences
-    # Top and bottom rows
-    for j in range(cols):
-        grad_y[0, j] = lattice[1, j] - lattice[0, j]
-        grad_y[-1, j] = lattice[-1, j] - lattice[-2, j]
+#     # Handle the boundaries with one-sided differences
+#     # Top and bottom rows
+#     for j in range(cols):
+#         grad_y[0, j] = lattice[1, j] - lattice[0, j]
+#         grad_y[-1, j] = lattice[-1, j] - lattice[-2, j]
     
-    # Left and right columns
-    for i in range(rows):
-        grad_x[i, 0] = lattice[i, 1] - lattice[i, 0]
-        grad_x[i, -1] = lattice[i, -1] - lattice[i, -2]
+#     # Left and right columns
+#     for i in range(rows):
+#         grad_x[i, 0] = lattice[i, 1] - lattice[i, 0]
+#         grad_x[i, -1] = lattice[i, -1] - lattice[i, -2]
     
-    # Create a 2D lattice of tuples
-    lattice_2D = np.empty((rows, cols), dtype=object)
-    for i in range(rows):
-        for j in range(cols):
-            lattice_2D[i, j] = (grad_x[i, j], grad_y[i, j])    
-    return lattice_2D
+#     # Create a 2D lattice of tuples
+#     lattice_2D = np.empty((rows, cols), dtype=object)
+#     for i in range(rows):
+#         for j in range(cols):
+#             lattice_2D[i, j] = (grad_x[i, j], grad_y[i, j])    
+#     return lattice_2D
 
 def compute_angle_difference(angle1, angle2):
     """
@@ -368,16 +368,16 @@ def detect_defects(lattice):
                 vortices.append((j+ 0.5 , i +0.5))  # Antivortex
     return vortices
 
-def detect_defects_part_2(lattice):
-    grad = gradient_calculator(lattice)
-    curl = curl_calculator(grad)
-    vortices = []
-    for i in range(curl.shape[0]):
-        for j in range(curl.shape[1]):
-            if curl[i, j] > 2*np.pi: 
-                vortices.append((i+ 0.5, j + 0.5))
-            elif curl[i, j] < -2*np.pi:
-                vortices.append((i + 0.5, j + 0.5))
+# def detect_defects_part_2(lattice):
+#     grad = gradient_calculator(lattice)
+#     curl = curl_calculator(grad)
+#     vortices = []
+#     for i in range(curl.shape[0]):
+#         for j in range(curl.shape[1]):
+#             if curl[i, j] > 2*np.pi: 
+#                 vortices.append((i+ 0.5, j + 0.5))
+#             elif curl[i, j] < -2*np.pi:
+#                 vortices.append((i + 0.5, j + 0.5))
     return vortices
 
 def display_spin_field(field):
