@@ -1,0 +1,7 @@
+module load python3
+
+mamba create --name my_custom_env python=3.8 imageio numpy scipy ipywidgets matplotlib jupyterlab ipykernel --channel conda-forge
+
+source activate my_XY_env
+
+python -m ipykernel install --user --name my_XY_env --display-name "Python 3 (my_XY_env)"
